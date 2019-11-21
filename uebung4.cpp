@@ -83,9 +83,16 @@ void add_elem(struct Node *node, int elem) {
 	std::sort(node->data.begin(), node->data.end());
 }
 
-void push_elem_in_node(struct Node *node, int elem, int k) {
+struct Node* get_root(struct Node *node) {
+	if (node->parent == NULL) return node;
+	return get_root(node->parent);
+}
+
+struct Node* push_elem_in_node(struct Node *node, int elem, int k) {
+	struct Node *root;
 	if (!node_full(node)) {
 		add_elem(node, elem);
+		root = get_root(node);
 	} else {
 		// Overflow
 		node->data[node->data.size()] = elem;
@@ -104,7 +111,6 @@ void push_elem_in_node(struct Node *node, int elem, int k) {
 			add_elem(right, node->data[i]);
 		}
 	
-
 		if (node->parent == NULL) {
 			std::vector<Node*> children(k+1);
 			children[k] = right;
@@ -112,30 +118,41 @@ void push_elem_in_node(struct Node *node, int elem, int k) {
 			struct Node *parent = create_node(node->key, k, NULL);
 			parent->children = children;
 			add_elem(parent, move_up);
-			get_node_details(parent);
 		} else {
 			push_elem_in_node(node->parent, move_up, k);
 		}
-
+		root = get_root(node);
 		free(node);
-		get_node_details(left);
-		get_node_details(right);
 	}
+
+	return root;
 }
 
-void push_elem_in_tree(struct Node *node, int elem, int k) {
+struct Node* push_elem_in_tree(struct Node *node, int elem, int k) {
+	struct Node* root;
 	if (node_is_leaf(node)) {
-		push_elem_in_node(node, elem, k);
+		root = push_elem_in_node(node, elem, k);
 	} else {
 		for (int i = 0; i < node->data.size(); i++) {
 			if (elem < node->data[i]) {
-				push_elem_in_tree(node->children[i], elem, k);
+				root = push_elem_in_tree(node->children[i], elem, k);
 				break;
 			}	
 		}
 
 		if (elem >= node->data[node->data.size()]) {
-			push_elem_in_tree(node->children[node->children.size()-1], elem, k);
+			root = push_elem_in_tree(node->children[node->children.size()-1], elem, k);
+		}
+	}
+
+	return root;
+}
+
+void display_tree(struct Node *node) {
+	get_node_details(node);
+	for (int i = 0; i < node->children.size(); i++) {
+		if (node->children[i] != NULL) {
+			display_tree(node->children[i]);
 		}
 	}
 }
@@ -144,11 +161,12 @@ int main() {
 	int k = 4;
 
 	struct Node *root = create_node(50, k, NULL);
-	push_elem_in_node(root, 2, k);
-	push_elem_in_node(root, 1, k);
-	push_elem_in_node(root, 4, k);
-	push_elem_in_node(root, 3, k);
-	push_elem_in_node(root, 5, k);
+	
+	for (int i = 1; i < 20; i++) {
+		root = push_elem_in_tree(root, i, k);
+	}
+	
+	display_tree(root);
 
 	return 0;
 }

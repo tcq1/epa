@@ -1,0 +1,7 @@
+1. a) RAM: Random Access Machine
+	n-1 Schritte --> 1. + 2. addieren, Ergebnis mit 3., etc.
+   b) PRAM: unendlich viele Kerne zur Verfügung --> Bildung von Paaren -> 4 Zeitschritte (log n Basis 2)
+   c) P-PRAM: begrenzte Anzahl Prozessoren
+	P = 4: 5 Zeitschritte
+	P = 3: 6 Zeitschritte
+        P = 2: 8 Zeitschritte

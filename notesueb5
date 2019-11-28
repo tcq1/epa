@@ -1,0 +1,45 @@
+1. viel effizienter da Zugriffszeit von O(1) wenn keine Hashkollisionen
+   Hashfunktionen surjektiv (für jede Adresse existiert ein Schlüssel), nicht injektiv (mehrere Schlüssel können die gleichen Adressen haben)
+   Worst Case: O(n)
+
+2. doppelt so groß (Füllgrad ca. 50%) --> im Schnitt 2 Zugriffe
+   in Realität 20-30% freie Plätze --> mehr Zugriffe aber nicht mehr O(n)
+
+3. s  h(s) = s mod 11
+
+   14   3
+   3	3
+   15	4
+   25	3
+   17	6
+   6	6
+   31	9
+   36	3
+   39	6
+   28	6
+
+   Teillisten: 3: 14->3->25->36
+	       4: 15
+	       6: 17->6->39->28
+	       9: 31
+  Worst-Case für erfolgreiches Suchen: 4 Schritte
+  Worst-Case erfolglos Suchen: 4
+  Formel zum Abschätzen: 
+	  erfolgreiches Suchen: 1 + (a/2)
+          erfolgloses Suchen: 1 + a
+	  a (alpha): Anzahl gespeicherte Elemente/Anzahl Teillisten (Teillisten: Listen mit Inhalt)
+  Formel Reale Werte (obiges Beispiel):
+	(4*1 + 2*2 + 2*3 + 2*4) / 10 = 2,2 --> durchschnittliche Anzahl Zugriffe
+  
+4. Lineares Sondieren Formel: h(s) = (h(s) + i) mod n
+			      Kollision -> i++
+   Problem: primäre Häufung: Häufung in einem bestimmten Teil der Tabelle --> Wahrscheinlichkeit ist hoch dass Hashwert wieder auf dem Teil landet --> große Anzahl Verschiebungen
+            sekundäre Häufung: Behinderung der Ausweichplätze
+
+5. Quadratisches Sondieren Formel: h(s) = (h(s) + i^2) mod n
+				   Kollision -> i++
+
+   Vorteil: weniger Häufungen an einer Stelle
+   Nachteil: bestimmte Felder können nicht erreicht werden
+
+   Lösung: Anpassung der Funktion: h(s) = h(s) + (-1)^(i+1)*i^2 mod n

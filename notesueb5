@@ -43,3 +43,7 @@
    Nachteil: bestimmte Felder können nicht erreicht werden
 
    Lösung: Anpassung der Funktion: h(s) = h(s) + (-1)^(i+1)*i^2 mod n
+
+6. 50%: a= k/n, k = Anzahl gespeicherte Werte, n = Anzahl Hashtabellenplätze
+
+7. Gleichverteilung bei Kollision, Hashfunktion muss mit minimalem Aufwand berechenbar sein, sollte ganzen Wertebereich der Schlüssel treffen

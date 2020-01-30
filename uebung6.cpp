@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <vector>
+#include <omp.h>
 
 using namespace std;
 
@@ -64,14 +65,16 @@ vector<int> selectionsort(vector<int> list) {
 
 vector<int> bubblesort(vector<int> list)
 {
+    int comparisons = 0;
     int bound = list.size() - 1;
     
     while (bound > 0)
     {
-	int k = 1;
+	int k = 0;
 	int j = 0;
         
 	do {
+		comparisons++;
 		if (list[j] > list[j+1]) {
 			swap(&list[j], &list[j+1]);
 			k = j;
@@ -83,7 +86,39 @@ vector<int> bubblesort(vector<int> list)
 	bound = k;
     }
 
+    cout << "Comparisons: " << comparisons << "\n"; 
+
     return list;
+}
+
+vector<int> odd_even_sort(vector<int> list) {
+	int comparisons = 0;
+	for (int i = 0; i < list.size(); i++) {
+		// odd
+		if (i % 2 == 1) {
+			comparisons++;
+			#pragma omp parallel for shared(list)
+			for (int j = 0; j < list.size() - 1; j = j+2) {
+				if (list[j] > list[j+1]) {
+					swap(list[j], list[j+1]);
+				}
+			}	
+		}
+		// even
+		else {	
+			comparisons++;
+			#pragma omp parallel for shared(list) 
+			for (int j = 1; j < list.size() - 1; j = j+2) {
+				if (list[j] > list[j+1]) {
+					swap(list[j], list[j+1]);
+				}
+			}	
+		}
+	}
+
+	cout << "Comparisons: " << comparisons << "\n";
+
+	return list;
 }
 
 vector<int> quicksort(vector<int> list, int low, int high)
@@ -129,32 +164,62 @@ void benchmark(int size)
     using namespace chrono;
 
     vector<int> list = create_list(size);
+  
+    cout << "List size " << size << ":\n";
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-    quicksort(list, 0, list.size()-1);
-    //bubblesort(list);
+    list = odd_even_sort(list);
 
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
 
-    cout << "List size " << size << ": " << time_span.count() << " seconds.\n";
+    if (is_sorted(list)) {
+    	cout << size << ": " << time_span.count() << " seconds.\n\n";
+    } else {
+	cout << "Error: List not sorted correctly!\n";
+    }
+}
+
+void benchmark2(int size)
+{
+    using namespace chrono;
+
+    vector<int> list = create_list(size);
+  
+    cout << "List size " << size << ":\n";
+
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+    list = bubblesort(list);
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+
+    if (is_sorted(list)) {
+    	cout << size << ": " << time_span.count() << " seconds.\n\n";
+    } else {
+	cout << "Error: List not sorted correctly!\n";
+    }
 }
 
 int main()
 {
-    
+    std::cout << "Benchmark for odd_even_sort parallel: \n";	
     benchmark(10);
     benchmark(100);
     benchmark(1000);
     benchmark(10000);
-    benchmark(100000);
 
-    vector<int> list = create_list(5);
-    print_list(list);
-    list = quicksort(list, 0, list.size() - 1);
-    print_list(list);
-    cout << "List sorted = " << is_sorted(list) << "\n";
+    std::cout << "\n";
+
+    std::cout << "Benchmark for bubblesort: \n";	
+    benchmark2(10);
+    benchmark2(100);
+    benchmark2(1000);
+    benchmark2(10000);
+
+    
 
     return 0;
 }
